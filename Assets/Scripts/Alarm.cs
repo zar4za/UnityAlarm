@@ -27,6 +27,7 @@ public class Alarm : MonoBehaviour
         if (collision.gameObject.TryGetComponent(out Thief thief))
         {
             _audioSource.Play();
+            StopWorkingCoroutine();
             _workingCoroutine = StartCoroutine(ChangeVolume(_targetVolume));
         }
     }
@@ -35,15 +36,13 @@ public class Alarm : MonoBehaviour
     {
         if (collision.gameObject.TryGetComponent(out Thief thief))
         {
+            StopWorkingCoroutine();
             _workingCoroutine = StartCoroutine(ChangeVolume(_startVolume, _audioSource.Stop));
         }
     }
 
     private IEnumerator ChangeVolume(float target, Action callback = null)
     {
-        if (_workingCoroutine is not null)
-            StopCoroutine(_workingCoroutine);
-
         while (_audioSource.volume != target)
         {
             _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, target, _volumeChangePerTick);
@@ -51,5 +50,11 @@ public class Alarm : MonoBehaviour
         }
 
         callback?.Invoke();
+    }
+
+    private void StopWorkingCoroutine()
+    {
+        if (_workingCoroutine != null)
+            StopCoroutine(_workingCoroutine);
     }
 }
